@@ -1,0 +1,8 @@
+{
+  "file": "ybc.json",
+  "throwError": false,
+  "includeAny": true,
+  "outputDir": "ybc-types",
+  "typesForStatusCode": [200, 400, 403, 500],
+  "forceParsingTextContent": true
+}
