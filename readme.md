@@ -5,6 +5,8 @@ the examples response output, url request query params and url request query bod
 
 ## How to use
 
+> First of all you'll need to export the postman collection. [Learn more about it here](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-collections)
+
 1. Download node version >=16
 2. Git clone the repo:
 
