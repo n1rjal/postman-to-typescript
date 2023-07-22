@@ -6,13 +6,37 @@ const {
   mkdirSync,
 } = require("fs");
 const { join } = require("path");
+const yargs = require("yargs");
+
+const argv = yargs
+  .option("file", {
+    alias: "f",
+    describe: "JSON file path",
+    type: "string",
+    demandOption: true,
+  })
+  .option("output", {
+    alias: "o",
+    describe: "Output directory for TypeScript types files",
+    type: "string",
+    demandOption: true,
+		default: "./",
+		coerce: (dir) => {
+      if (!existsSync(dir)) {
+        throw new Error(`Output directory does not exist: ${dir}`);
+      }
+      return dir;
+    },
+  }).argv;
 
 /* These lines of code are declaring and initializing variables that will be used in the program: */
-let file = "";
+let {
+	file,
+	output: OUTPUT_DIR
+} = argv;
 let throwError = false;
 let INCLUDE_ANY = true;
 let TYPES_FOR_STATUS_CODE = [];
-let OUTPUT_DIR = "";
 let PARSE_TYPES = ["json"];
 
 /* The code is defining two constants: one for all typescript illegal characters and other for numeric types in js*/
@@ -217,7 +241,7 @@ function getData(jsonData) {
 /* The code is reading the contents of a JSON file named "eater.json". It then parses the JSON data and
 assigns the values of certain properties to variables (`file`, `throwError`, `INCLUDE_ANY`,
 `OUTPUT_DIR`, `TYPES_FOR_STATUS_CODE`). */
-readFile(join(__dirname, "eater.json"), (err, data) => {
+readFile(join(__dirname, file), (err, data) => {
   if (err) throw err;
   const jsonData = JSON.parse(data);
   file = jsonData.file;
