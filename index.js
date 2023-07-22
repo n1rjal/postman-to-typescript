@@ -35,8 +35,6 @@ function toCamelCase(string) {
 
     .filter((string) => string.length > 0);
 
-  console.log({ string, strfmt: string.replaceAll("\n", ""), legalString });
-
   return legalString.reduce((accumulator, word) => {
     return accumulator + word[0].toUpperCase() + word.slice(1);
   }, "");
