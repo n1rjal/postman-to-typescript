@@ -6,9 +6,13 @@ const {
   mkdirSync,
 } = require("fs");
 const { join } = require("path");
+const argeater = require("./utils/argeater");
 
 /* These lines of code are declaring and initializing variables that will be used in the program: */
-let file = "";
+const args = argeater({
+	required: ["i"],
+});
+let file = args.i;
 let throwError = false;
 let INCLUDE_ANY = true;
 let TYPES_FOR_STATUS_CODE = [];
@@ -217,7 +221,7 @@ function getData(jsonData) {
 /* The code is reading the contents of a JSON file named "eater.json". It then parses the JSON data and
 assigns the values of certain properties to variables (`file`, `throwError`, `INCLUDE_ANY`,
 `OUTPUT_DIR`, `TYPES_FOR_STATUS_CODE`). */
-readFile(join(__dirname, "eater.json"), (err, data) => {
+readFile(join(__dirname, file), (err, data) => {
   if (err) throw err;
   const jsonData = JSON.parse(data);
   file = jsonData.file;
