@@ -1,16 +1,35 @@
 {
-  "name": "postman-eater",
+  "name": "pm_ts",
   "version": "1.0.0",
+  "author": "Nirjal Paudel <nirjalpaudel54312@gmail.com>",
   "description": "A simple tool that transforms Postman files into typescript type files",
-  "main": "index.js",
-  "private": "false",
   "bin": {
     "pm_ts": "bin/index.js"
   },
+  "homepage": "https://github.com/n1rjal/postman-to-typescript",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/n1rjal/postman-to-typescript"
+  },
+  "keywords": [
+    "utils",
+    "postman",
+    "typescript",
+    "code-generator",
+    "generator",
+    "convertor",
+    "type-generator"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "bugs": {
+    "email": "nirjalpaudel54312@gmail.com",
+    "url": "https://github.com/n1rjal/postman-to-typescript/issues"
+  },
+  "license": "Apache-2.0"
 }
