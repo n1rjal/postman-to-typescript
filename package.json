@@ -15,6 +15,9 @@
     "type": "git",
     "url": "https://github.com/n1rjal/postman-to-typescript"
   },
+  "files": [
+    "bin"
+  ],
   "keywords": [
     "utils",
     "postman",
