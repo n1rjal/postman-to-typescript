@@ -20,9 +20,32 @@ git clone https://github.com/n1rjal/postman-to-typescript.git
 node index.js
 ```
 
+## Use npx
+
+```bash
+
+npx @n1rjal/pm_ts -i cit-input.json -o types
+```
+
+## Command-line Arguments
+
+The script file is most stable for -i and -o flags. Other files may bring unwanted results. And postman form data can perform errors.
+`pm_ts` supports the following command-line arguments:
+
+| Argument            | Description                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| -i, --input         | The export of postman data as json v2.0                                                                             |
+| -o, --output        | The output directory for all types                                                                                  |
+| -ia, --include-any  | This specifies if any must be included in typescript types or not. Default value is false                           |
+| -sc, --status-codes | This specifies if we can add type support for response of the types provided. Default value is 200[comma separated] |
+| -ft, --force-text   | This specifies if we need to parse text content in postman request or not. Default value is false                   |
+| -te, --throw-error  | This specifies if the program should throw an error                                                                 |
+
+You can use these arguments when running the script or program to provide additional options or information.
+
 ## After successful execution
 
-Before your folder structure, should look like this
+On local run, before your folder structure, should look like this
 
 ```bash
 .
@@ -35,7 +58,7 @@ Before your folder structure, should look like this
 
 ```
 
-** After successful execution**, you should see your code structure change as
+**After successful execution**, you should see your code structure change as
 
 ```bash
 
@@ -112,19 +135,19 @@ export interface IGetAllRequestsFromOneTimeToAnother {
 }
 ```
 
-## Config file
+## Option Flag
 
-For the config file, we have used the eater.json as config file. As originally this project was named postman eater.
-Here are the meaning of keys of the eater json file
+The option flags, we have for the command are listed below
 
-| Field                     | Description                                                                                                    |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `file`                    | The location of the Postman export collection JSON file.                                                       |
-| `throwError`              | If `true`, the program will throw errors and stop the process in case of exceptions.                           |
-| `includeAny`              | If `true`, the program will infer some types as `any` or `unknown`.                                            |
-| `outputDir`               | The directory where the TypeScript definitions will be generated.                                              |
-| `typesForStatusCode`      | An array of status codes for which TypeScript types will be generated based on the examples in the collection. |
-| `forceParsingTextContent` | If `true`, the program will try to parse the text content as JSON. If invalid JSON, an error will be thrown.   |
+This will prompt you for some basic information about your project, such as the project name and the package manager you want to use (`npm` or `yarn`). After providing the required information, `pm-ts` will set up a new TypeScript project for you with the selected package manager.
+
+## Contributing
+
+Contributions are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/n1rjal/pm-ts). We appreciate your feedback and contributions.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 Use this table as a quick reference for understanding the purpose of each field in the configuration file.
 
