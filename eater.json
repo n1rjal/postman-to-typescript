@@ -1,8 +1,0 @@
-{
-  "file": "sample.json",
-  "throwError": false,
-  "includeAny": true,
-  "outputDir": "types",
-  "typesForStatusCode": [200, 400, 403, 500],
-  "forceParsingTextContent": false
-}

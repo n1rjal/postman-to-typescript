@@ -1,0 +1,16 @@
+{
+  "name": "postman-eater",
+  "version": "1.0.0",
+  "description": "A simple tool that transforms Postman files into typescript type files",
+  "main": "index.js",
+  "private": "false",
+  "bin": {
+    "transform": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
