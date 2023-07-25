@@ -16,7 +16,6 @@
     "url": "https://github.com/n1rjal/postman-to-typescript"
   },
   "files": [
-    "utils",
     "bin"
   ],
   "keywords": [
