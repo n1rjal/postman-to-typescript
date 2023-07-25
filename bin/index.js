@@ -95,7 +95,9 @@ let PARSE_TYPES = ["json"];
  */
 function printHelp() {
   const userAskedForHelp =
-    process.argv.includes("-h") || process.argv.includes("--help");
+    process.argv.includes("-h") ||
+    process.argv.includes("--help") ||
+    process.argv.length === 2;
 
   if (!userAskedForHelp) return false;
 
@@ -419,6 +421,7 @@ async function main() {
 
 // if user has asked for help this will print the help
 // help is asked if -h or --help is present in command
+// or if there is not args
 printHelp();
 
 // run the main function
