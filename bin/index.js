@@ -95,9 +95,7 @@ let PARSE_TYPES = ["json"];
  */
 function printHelp() {
   const userAskedForHelp =
-    process.argv.includes("-h") ||
-    process.argv.includes("--help") ||
-    process.argv.length === 2;
+    process.argv.includes("-h") || process.argv.includes("--help");
 
   if (!userAskedForHelp) return false;
 
