@@ -55,24 +55,24 @@ const ARGS_HELP_MAP = new Map();
 // and ignoring the last one
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[0],
-  `The export of postman data as json v2.0`
+  `The export of postman data as json v2.0`,
 );
 ARGS_HELP_MAP.set(ALL_DEFINED_ARGS[1], `The output directory for all types`);
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[2],
-  `This specifies if any must be included in typescript types or not. Default value is false`
+  `This specifies if any must be included in typescript types or not. Default value is false`,
 );
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[3],
-  `This specifies if we can add type support for response of the types provided. Default value is 200[comma separated]`
+  `This specifies if we can add type support for response of the types provided. Default value is 200[comma separated]`,
 );
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[4],
-  `This specifies if we need to parse text content in postman request or not. Default value is false`
+  `This specifies if we need to parse text content in postman request or not. Default value is false`,
 );
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[5],
-  `This specifies if the program should throw error`
+  `This specifies if the program should throw error`,
 );
 
 /* The above code is filtering an array called `ALL_DEFINED_ARGS` to only include elements that have a
@@ -125,12 +125,28 @@ async function parseArgs() {
   const args = {};
 
   for (let i = 2; i < process.argv.length; i++) {
-    const argKey = process.argv[i];
-    args[argKey] = process.argv[++i];
+    // usually keys some at with format --input filename.json or -i fn.json
+    // so argv[i] = --input
+    // and argv[i+1] = filename.json
+
+    const argKeyRaw = process.argv[i++];
+
+    const keyObject = ALL_DEFINED_ARGS.find((arg) =>
+      arg.keys.includes(argKeyRaw),
+    );
+
+    if (!keyObject) {
+      i = i + 2;
+      continue;
+    }
+
+    const argKey = keyObject.keys[0];
+    const argValue = process.argv[i];
+    args[argKey] = argValue;
 
     // basically we are searching by both keys
     requiredArgs = requiredArgs.filter(
-      (arg) => !(arg.keys[0] === argKey || arg.keys[1] === argKey)
+      (arg) => !(arg.keys[0] === argKey || arg.keys[1] === argKey),
     );
   }
 
@@ -159,7 +175,7 @@ async function parseArgs() {
  * @returns The function `askQuestion` returns a promise.
  */
 async function askQuestion(questionText) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const question = `# ${questionText}: `;
     rl.question(question, (answer) => {
       resolve(answer);
@@ -227,13 +243,13 @@ async function parseTypeFromPostManRequestQuery(name, request) {
           [TS_ILLEGAL_CHARACTERS.test(item.key) ? `"${item.key}"` : item.key]:
             item.value,
         }),
-        {}
+        {},
       );
       const content = getTypeScriptTypeFromRawJson(name, JSON.stringify(json));
       const path = join(
         `${OUTPUT_DIR}`,
         "queries",
-        `I${toCamelCase(name)}Query.ts`
+        `I${toCamelCase(name)}Query.ts`,
       );
       const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
       writeFile(path, fileContent, { flag: "w+" }, (err) => {
@@ -260,7 +276,7 @@ async function parseTypeFromPostManRequestJsonBody(name, req) {
     const path = join(
       `${OUTPUT_DIR}`,
       "request",
-      `I${toCamelCase(name)}Request.ts`
+      `I${toCamelCase(name)}Request.ts`,
     );
     const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
     return writeFile(path, fileContent);
@@ -334,7 +350,7 @@ function getTypeScriptTypeFromRawJson(name, rawJson) {
 
     for (const key in jsonData) {
       response += `  ${key}: ${getTypescriptEquivalentForVariable(
-        jsonData[key]
+        jsonData[key],
       )}; \n`;
     }
     response += "}";
@@ -362,8 +378,8 @@ async function getData(jsonData) {
     await parseTypeFromPostManRequestQuery(jsonData.name, req);
     await Promise.all(
       exampleResponses.map(async (resp) =>
-        parseTypesFromPostManExampleResponse(resp)
-      )
+        parseTypesFromPostManExampleResponse(resp),
+      ),
     );
     return true;
   }
@@ -428,6 +444,6 @@ main()
     process.exit(0);
   })
   .catch((e) => {
-    if (throwError) console.log(e?.message ?? e);
+    console.log(e?.message ?? e);
     process.exit(1);
   });
