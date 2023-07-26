@@ -143,7 +143,7 @@ This will prompt you for some basic information about your project, such as the 
 
 ## Contributing
 
-Contributions are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/n1rjal/pm-ts). We appreciate your feedback and contributions.
+Please see [CONTRIBUTING.md](https://github.com/bigyanse/postman-to-typescript/blob/main/CONTRIBUTING.md) for contributing guide.
 
 ## License
 
@@ -154,12 +154,3 @@ Use this table as a quick reference for understanding the purpose of each field 
 ## Warning
 
 Note that this project is still in beta stage and might return files with undefined in it every here and there. So feel free to create issues and contribute the project as necessary
-
-## Contributing
-
-Feel free to contribute to the project
-
-1. Add support for nested json response
-2. Add support for form data types
-3. Add support for remote postman json via URL
-4. Add support for command line arguments
