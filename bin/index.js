@@ -77,11 +77,11 @@ ARGS_HELP_MAP.set(
   `This specifies if the program should throw error`,
 );
 ARGS_HELP_MAP.set(
-  ALL_DEFINED_ARGS[5],
+  ALL_DEFINED_ARGS[6],
   `This specifies the postman API key`,
 );
 ARGS_HELP_MAP.set(
-  ALL_DEFINED_ARGS[6],
+  ALL_DEFINED_ARGS[7],
   `This specifies the remote postman collection id`,
 );
 
