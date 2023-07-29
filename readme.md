@@ -10,7 +10,7 @@ First of all, you'll either need to
  - use remote postman collection, for which you need to have a postman API key and a remote postman collection.
    - To generate your own API key, check [docs](https://learning.postman.com/docs/developer/postman-api/authentication/#generate-a-postman-api-key).
    - To get a remote postman collection, you can either make your workspace [public](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/public-workspaces/) and access your collection remotely, or [explore](https://www.postman.com/explore) public API network.  
-     A collection url is in the format of `https://www.postman.com/<team>/workspace/<workspace>/collection/<colletion-id>`.
+     A collection url is in the format of `https://www.postman.com/<team>/workspace/<workspace>/collection/<collection-id>`.
 
 Then,
 1. Download node version >=16
