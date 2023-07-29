@@ -45,7 +45,7 @@ const ALL_DEFINED_ARGS = [
     default: false,
   },
   { keys: ["-X", "--api-key"], required: true, question: "Postman API key" },
-  { keys: ["-U", "--collection-id"], required: true, question: "Remote postman collection id" },
+  { keys: ["-U", "--collection-url"], required: true, question: "Remote postman collection url" },
 ];
 
 /* The above code is defining a map called `ARGS_HELP_MAP` which is used to store help messages for
@@ -160,7 +160,7 @@ async function parseArgs() {
     );
   }
 
-	if(!args["-i"] && args["-U"]) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));
+	if(!args["-i"] && (args["-U"] || args["-X"])) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));
 	if(args["-i"]) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-U" || arg.keys[1] === "--collection-id" || arg.keys[0] === "-X" || arg.keys[1] === "--api-key"));
 
   // fill in the rest with defaults
@@ -417,7 +417,7 @@ async function getPostmanCollectionJSON(collectionID, apiKey) {
 		}
 		return data.collection;
 	} catch(err) {
-		throw new Error("Error fetching remote collection");
+		throw new Error(err.message);
 	}
 }
 
@@ -464,7 +464,7 @@ async function main() {
   }
 
 	if(args["-U"]) {
-		const collectionID = args["-U"];
+		const collectionID = args["-U"].split("").reverse().join("").split("/")[0].split("").reverse().join("");
 		const apiKey = args["-X"];
 		const jsonData = await getPostmanCollectionJSON(collectionID, apiKey);
 		await getData(jsonData);
