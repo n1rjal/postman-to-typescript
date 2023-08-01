@@ -160,8 +160,27 @@ async function parseArgs() {
     );
   }
 
-	if(!args["-i"] && (args["-U"] || args["-X"])) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));
+	if(!(args["-i"] || args["-U"] || args["-X"])) {
+		let inp = await askQuestion("Use remote postman[1] or local json file[2] ? [Default: 2]");
+		try {
+			inp = parseInt(inp);
+		} catch(err) {
+			inp = 0;
+		}
+		switch(inp) {
+			case 1:
+				requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));
+				break;
+			case 2:
+				requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-U" || arg.keys[1] === "--collection-id" || arg.keys[0] === "-X" || arg.keys[1] === "--api-key"));
+				break;
+			default:
+				console.error("Please enter 1 or 2 as input");
+				process.exit(1);
+		}
+	}
 	if(args["-i"]) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-U" || arg.keys[1] === "--collection-id" || arg.keys[0] === "-X" || arg.keys[1] === "--api-key"));
+	if(!args["-i"] && (args["-U"] || args["-X"])) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));	
 
   // fill in the rest with defaults
   for (const arg of ALL_DEFINED_ARGS) {
