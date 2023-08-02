@@ -44,6 +44,8 @@ const ALL_DEFINED_ARGS = [
     required: false,
     default: false,
   },
+  { keys: ["-X", "--api-key"], required: true, question: "Postman API key" },
+  { keys: ["-U", "--collection-url"], required: true, question: "Remote postman collection url" },
 ];
 
 /* The above code is defining a map called `ARGS_HELP_MAP` which is used to store help messages for
@@ -73,6 +75,14 @@ ARGS_HELP_MAP.set(
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[5],
   `This specifies if the program should throw error`,
+);
+ARGS_HELP_MAP.set(
+  ALL_DEFINED_ARGS[6],
+  `This specifies the postman API key`,
+);
+ARGS_HELP_MAP.set(
+  ALL_DEFINED_ARGS[7],
+  `This specifies the remote postman collection id`,
 );
 
 /* The above code is filtering an array called `ALL_DEFINED_ARGS` to only include elements that have a
@@ -149,6 +159,28 @@ async function parseArgs() {
       (arg) => !(arg.keys[0] === argKey || arg.keys[1] === argKey),
     );
   }
+
+	if(!(args["-i"] || args["-U"] || args["-X"])) {
+		let inp = await askQuestion("Use remote postman[1] or local json file[2] ? [Default: 2]");
+		try {
+			inp = parseInt(inp);
+		} catch(err) {
+			inp = 0;
+		}
+		switch(inp) {
+			case 1:
+				requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));
+				break;
+			case 2:
+				requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-U" || arg.keys[1] === "--collection-id" || arg.keys[0] === "-X" || arg.keys[1] === "--api-key"));
+				break;
+			default:
+				console.error("Please enter 1 or 2 as input");
+				process.exit(1);
+		}
+	}
+	if(args["-i"]) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-U" || arg.keys[1] === "--collection-id" || arg.keys[0] === "-X" || arg.keys[1] === "--api-key"));
+	if(!args["-i"] && (args["-U"] || args["-X"])) requiredArgs = requiredArgs.filter((arg) => !(arg.keys[0] === "-i" || arg.keys[1] === "--input"));	
 
   // fill in the rest with defaults
   for (const arg of ALL_DEFINED_ARGS) {
@@ -386,12 +418,35 @@ async function getData(jsonData) {
 }
 
 /**
+ * The function `getPostmanCollectionJSON` fetches remote postman collection with `collectionID` using
+ * postman API key `apiKey`.
+ * @param collectionID - The `collectionID` parameter is the collectionID of the remote postman collection.
+ * @param apiKey - The `apiKey` paramater is the user-generated postman api key.
+ */
+async function getPostmanCollectionJSON(collectionID, apiKey) {
+	try {
+		const response = await fetch(`https://api.getpostman.com/collections/${collectionID}?format=2.0.0`, {
+			headers: {
+				"X-API-KEY": apiKey,
+			},
+		});
+		const data = await response.json();
+		if(data.error) {
+			throw new Error(`${data.error.name}: ${data.error.message}`);
+		}
+		return data.collection;
+	} catch(err) {
+		throw new Error(err.message);
+	}
+}
+
+/**
  * The main function reads command line arguments, checks file and output folder existence, creates
  * necessary directories, reads JSON data from a file, and calls the getData function.
  */
 async function main() {
   const args = await parseArgs();
-  file = args["-i"];
+	if(args["-i"]) file = args["-i"];
   throwError = Boolean(args["-te"]);
   INCLUDE_ANY = Boolean(args["-ia"]);
   OUTPUT_DIR = args["-o"];
@@ -404,10 +459,9 @@ async function main() {
       TYPES_FOR_STATUS_CODE.push(parseInt(code));
     });
 
-  const postManFileExists = existsSync(file);
   const outputFolderExists = existsSync(OUTPUT_DIR);
 
-  if (!postManFileExists) {
+  if (args["-i"] && !existsSync(file)) {
     console.log(`File ${file} does not exist`);
     process.exit(1);
   }
@@ -428,9 +482,16 @@ async function main() {
     mkdirSync(join(OUTPUT_DIR, "response"));
   }
 
-  const data = readFileSync(file);
-  const jsonData = JSON.parse(data);
-  await getData(jsonData);
+	if(args["-U"]) {
+		const collectionID = args["-U"].split("").reverse().join("").split("/")[0].split("").reverse().join("");
+		const apiKey = args["-X"];
+		const jsonData = await getPostmanCollectionJSON(collectionID, apiKey);
+		await getData(jsonData);
+	} else {
+		const data = readFileSync(file);
+		const jsonData = JSON.parse(data);
+		await getData(jsonData);
+	}
 }
 
 // if user has asked for help this will print the help
