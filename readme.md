@@ -1,6 +1,6 @@
 # POSTMAN TO TYPESCRIPT
 
-A simple tool built on top of nodejs that scraps all the content of a postman json documents and creates interface according to
+A simple tool built on top of nodejs that scans for all the content of a postman json document and creates interface according to
 the examples response output, url request query params and url request query body
 
 ## How to use
