@@ -347,6 +347,8 @@ async function parseTypesFromPostManExampleResponse(resp) {
 function getTypescriptEquivalentForVariable(value) {
   const type = typeof value;
 
+  if (value === null) return "null";
+
   if (type === "object") {
     if (Array.isArray(value)) {
       const type = getTypescriptEquivalentForVariable(value[0]);
@@ -359,7 +361,6 @@ function getTypescriptEquivalentForVariable(value) {
   if (type === "boolean") return "boolean";
   if (NUMERIC_TYPES.includes(type)) return "number";
   if (type === "string") return "string";
-  if (value === null) return "null";
   return INCLUDE_ANY ? "any" : "unknown";
 }
 
@@ -375,7 +376,7 @@ function getTypescriptEquivalentForVariable(value) {
  */
 function getTypeScriptTypeFromRawJson(name, rawJson) {
   let response =
-    name.length > 0 ? `export interface I${toCamelCase(name)} { \n` : "{";
+    (name && name.length) > 0 ? `export interface I${toCamelCase(name)} { \n` : "{";
   try {
     let jsonData = JSON.parse(rawJson);
     if (Array.isArray(jsonData) && jsonData.length > 0) jsonData = jsonData[0];
