@@ -18,6 +18,11 @@
   "files": [
     "bin"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "keywords": [
     "utils",
     "postman",
