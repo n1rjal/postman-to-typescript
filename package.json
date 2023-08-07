@@ -1,6 +1,6 @@
 {
   "name": "@n1rjal/pm_ts",
-  "version": "0.3.4",
+  "version": "0.3.0",
   "author": "Nirjal Paudel<nirjalpaudel54312@gmail.com>",
   "description": "A simple tool that transforms Postman files into typescript type files",
   "bin": {
