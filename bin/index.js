@@ -306,7 +306,7 @@ async function parseTypeFromPostManRequestQuery(name, request) {
       const path = join(
         `${OUTPUT_DIR}`,
         "queries",
-        `I${toCamelCase(name)}Query.ts`,
+        `${toCamelCase(name)}Query.ts`,
       );
       const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
       writeFile(path, fileContent, { flag: "w+" }, (err) => {
@@ -357,7 +357,7 @@ async function parseTypesFromPostManExampleResponse(resp) {
   ) {
     const content = getTypeScriptTypeFromRawJson(name, rawJson);
     const fileContent = `/*\n${name}\n*/\n` + content;
-    const path = join(`${OUTPUT_DIR}`, "response", `I${toCamelCase(name)}.ts`);
+    const path = join(`${OUTPUT_DIR}`, "response", `${toCamelCase(name)}.ts`);
     return writeFile(path, fileContent);
   }
 }
@@ -369,17 +369,21 @@ async function parseTypesFromPostManExampleResponse(resp) {
  * variable for which we want to determine the TypeScript equivalent type.
  * @returns a TypeScript equivalent type for the given variable.
  */
-function getTypescriptEquivalentForVariable(value) {
+function getTypescriptEquivalentForVariable(value, depth = 1) {
   const type = typeof value;
 
   if (value === null) return "null";
 
   if (type === "object") {
     if (Array.isArray(value)) {
-      const type = getTypescriptEquivalentForVariable(value[0]);
+      const type = getTypescriptEquivalentForVariable(value[0], depth + 1);
       return type ? `${type}[]` : INCLUDE_ANY ? "any[]" : "unknown[]";
     }
-    let nestedType = getTypeScriptTypeFromRawJson(null, JSON.stringify(value));
+    let nestedType = getTypeScriptTypeFromRawJson(
+      null,
+      JSON.stringify(value),
+      depth + 1,
+    );
     return nestedType;
   }
 
@@ -399,20 +403,24 @@ function getTypescriptEquivalentForVariable(value) {
  * the raw JSON data that you want to convert into a TypeScript type.
  * @returns a TypeScript interface or object literal as a string.
  */
-function getTypeScriptTypeFromRawJson(name, rawJson) {
+function getTypeScriptTypeFromRawJson(name, rawJson, depth = 1) {
   let response =
     (name && name.length) > 0
-      ? `export interface I${toCamelCase(name)} { \n`
-      : "{";
+      ? `export interface ${toCamelCase(name)} { \n`
+      : "{ \n";
   try {
     let jsonData = JSON.parse(rawJson);
+
     if (Array.isArray(jsonData) && jsonData.length > 0) jsonData = jsonData[0];
 
     for (const key in jsonData) {
-      response += `  ${key}: ${getTypescriptEquivalentForVariable(
+      for (let i = 0; i < depth; i++) response += "  ";
+      response += `${key}: ${getTypescriptEquivalentForVariable(
         jsonData[key],
+        depth + 1,
       )}; \n`;
     }
+    for (let i = 0; i < depth - 1; i++) response += "  ";
     response += "}";
     return response;
   } catch (e) {
