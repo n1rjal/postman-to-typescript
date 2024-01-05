@@ -3,8 +3,8 @@
 A simple tool built on top of nodejs that scans for all the content of a postman json document and creates interface according to
 the examples response output, url request query params and url request query body
 
-## To bored to read
-
+## Too bored to read ?
+I got you covered 😉
 
 https://github.com/n1rjal/postman-to-typescript/assets/60036262/a1443a38-b0f3-4164-9282-a27756c108f2
 
