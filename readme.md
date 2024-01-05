@@ -4,8 +4,11 @@ A simple tool built on top of nodejs that scans for all the content of a postman
 the examples response output, url request query params and url request query body
 
 ## To bored to read
-I have got you covered
-<video src="./static/pm_ts.mp4" alt="Pmts Video" width="1080" height="720" />
+
+
+https://github.com/n1rjal/postman-to-typescript/assets/60036262/a1443a38-b0f3-4164-9282-a27756c108f2
+
+
 
 ## How to use
 
