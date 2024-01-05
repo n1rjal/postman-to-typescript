@@ -3,13 +3,17 @@
 A simple tool built on top of nodejs that scans for all the content of a postman json document and creates interface according to
 the examples response output, url request query params and url request query body
 
+## To bored to read
+I have got you covered
+<video src="./static/pm_ts.mp4" alt="Pmts Video" width="1080" height="720" />
+
 ## How to use
 
-First of all, you'll either need to  
+First of all, you'll either need to
  - export the postman collection [Learn more about it here](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-collections), or,
  - use remote postman collection, for which you need to have a postman API key and a remote postman collection.
    - To generate your own API key, check [docs](https://learning.postman.com/docs/developer/postman-api/authentication/#generate-a-postman-api-key).
-   - To get a remote postman collection, you can either make your workspace [public](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/public-workspaces/) and access your collection remotely, or [explore](https://www.postman.com/explore) public API network.  
+   - To get a remote postman collection, you can either make your workspace [public](https://learning.postman.com/docs/collaborating-in-postman/using-workspaces/public-workspaces/) and access your collection remotely, or [explore](https://www.postman.com/explore) public API network.
      A collection url is in the format of `https://www.postman.com/<team>/workspace/<workspace>/collection/<collection-id>`.
 
 Then,
