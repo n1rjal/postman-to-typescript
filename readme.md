@@ -73,68 +73,6 @@ On local run, before your folder structure, should look like this
 
 ```
 
-**After successful execution**, you should see your code structure change as
-
-```bash
-
-.
-├── eater.json
-├── index.js
-├── readme.md
-├── sample.json
-└── types
-    ├── queries
-    │   ├── IAllOpenRequetsQuery.ts
-    │   ├── IGetAllPostsForACompetitionQuery.ts
-    │   ├── IGetAllPostsQuery.ts
-    │   ├── IGetAllRequestsFromOneTimeToAnotherQuery.ts
-    │   ├── IGetFamousHashtagsQuery.ts
-    │   ├── IGetLikesToACommentQuery.ts
-    │   ├── IGetRepliesToACommentQuery.ts
-    │   └── ISearchAUserQuery.ts
-    ├── request
-    │   ├── IAddAwardsForACompetitionRequest.ts
-    │   ├── IAddNewTokenRequest.ts
-    │   ├── IAddSponserRequest.ts
-    │   ├── ICalculateWinnersRequest.ts
-    │   ├── ICommentAPostRequest.ts
-    │   ├── IDeleteNotificationRequest.ts
-    │   ├── IGetNewAccessTokenUsingRefreshTokenRequest.ts
-    │   ├── IRemoveAwardForACompetitionRequest.ts
-    │   ├── IRemoveSponserRequest.ts
-    │   ├── IReplyToACommentRequest.ts
-    │   ├── IReportAPostRequest.ts
-    │   ├── ISendNotificationRequest.ts
-    │   ├── ISiginUserRequest.ts
-    │   ├── IUpdateAwardForACompetitionRequest.ts
-    │   ├── IUpdateCommentRequest.ts
-    │   ├── IUpdateSponserRequest.ts
-    │   └── IUpdateVideoRequest.ts
-    └── response
-        ├── ICreateACommentResponseBody.ts
-        ├── ICreateACompetitionResponseBody.ts
-        ├── IDeleteACommentResponseBody.ts
-        ├── IErrorInUseCreationResponseBody.ts
-        ├── IGetAllCompeditionsResponseBody.ts
-        ├── IGetAllPostsResponseBody.ts
-        ├── IGetNewAccessTokenUsingRefreshTokenResponseBody.ts
-        ├── IGetPostByIDResponseBody.ts
-        ├── IPostCreatedSuccessfullyResponseBody.ts
-        ├── ISiginFailureResponseBody.ts
-        ├── ISuccesfulDeletionResponseBody.ts
-        ├── ISuccessfulDeletionResponseBody.ts
-        ├── ISuccessfullySignedResponseBody.ts
-        ├── ISuccessfullyUpdatedResponseBody.ts
-        ├── ITokenUserNotFounResponseBody.ts
-        ├── IUnlikeDeleyeAlikeResponseBody.ts
-        ├── IUpdaateVideoResponseBody.ts
-        ├── IUpdateCommentResponseBody.ts
-        └── IUserCreatedSuccessfullyResponseBody.ts
-
-4 directories, 48 files
-
-```
-
 ## Interface
 
 Every interface here will have the following format
@@ -144,7 +82,7 @@ Every interface here will have the following format
 Get all requests from one time to another
 GET: {{host}}/report/time-stamps?startDate=05-22-2021&endDate=07-30-2021
 */
-export interface IGetAllRequestsFromOneTimeToAnother {
+export interface GetAllRequestsFromOneTimeToAnother {
   startDate: string;
   endDate: string;
 }
