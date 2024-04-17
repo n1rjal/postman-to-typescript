@@ -55,6 +55,7 @@ The script file is most stable for -i and -o flags. Other files may bring unwant
 | -sc, --status-codes | This specifies if we can add type support for response of the types provided. Default value is 200[comma separated] |
 | -ft, --force-text   | This specifies if we need to parse text content in postman request or not. Default value is false                   |
 | -te, --throw-error  | This specifies if the program should throw an error                                                                 |
+| -p, --prefix        | This specifies if the output files need prefix                                                                      |
 
 You can use these arguments when running the script or program to provide additional options or information.
 
