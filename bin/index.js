@@ -50,6 +50,7 @@ const ALL_DEFINED_ARGS = [
     required: true,
     question: "Remote postman collection url",
   },
+  { keys: ["-p", "--prefix"], required: false, default: "" },
 ];
 
 /* The above code is defining a map called `ARGS_HELP_MAP` which is used to store help messages for
@@ -97,6 +98,7 @@ let INCLUDE_ANY = true;
 let TYPES_FOR_STATUS_CODE = [200];
 let OUTPUT_DIR = "";
 let PARSE_TYPES = ["json"];
+let PREFIX = "";
 
 /**
  * The function `printHelp` checks if the user has requested help by checking command line arguments,
@@ -288,7 +290,7 @@ function toCamelCase(string) {
  * @param request - The `request` parameter is an object that represents a request made in Postman. It
  * contains information about the request, such as the method (e.g., GET, POST) and the URL.
  */
-async function parseTypeFromPostManRequestQuery(name, request) {
+async function parseTypeFromPostManRequestQuery(name, request, prefix) {
   if (request?.url?.query && request?.url?.query?.length > 0) {
     const method = request.method;
     const url = request.url.raw;
@@ -302,11 +304,15 @@ async function parseTypeFromPostManRequestQuery(name, request) {
         }),
         {},
       );
-      const content = getTypeScriptTypeFromRawJson(name, JSON.stringify(json));
+      const content = getTypeScriptTypeFromRawJson(
+        name,
+        JSON.stringify(json),
+        prefix,
+      );
       const path = join(
         `${OUTPUT_DIR}`,
         "queries",
-        `${toCamelCase(name)}Query.ts`,
+        `${prefix}${toCamelCase(name)}Query.ts`,
       );
       const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
       writeFile(path, fileContent, { flag: "w+" }, (err) => {
@@ -323,17 +329,17 @@ async function parseTypeFromPostManRequestQuery(name, request) {
  * contains information such as the request method (`req.method`), the request URL (`req.url.raw`), and
  * the query parameters (`req.url.query`).
  */
-async function parseTypeFromPostManRequestJsonBody(name, req) {
+async function parseTypeFromPostManRequestJsonBody(name, req, prefix) {
   if (req?.body?.options?.raw?.language === "json" && req?.body?.raw) {
     const raw = req.body.raw;
     const method = req.method;
     const url = req?.url?.raw ?? req.url;
 
-    const content = getTypeScriptTypeFromRawJson(name, raw);
+    const content = getTypeScriptTypeFromRawJson(name, raw, prefix);
     const path = join(
       `${OUTPUT_DIR}`,
       "request",
-      `${toCamelCase(name)}Request.ts`,
+      `${prefix}${toCamelCase(name)}Request.ts`,
     );
     const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
     return writeFile(path, fileContent);
@@ -346,7 +352,7 @@ async function parseTypeFromPostManRequestJsonBody(name, req) {
  * @param resp - The `resp` parameter is an object that represents a response from a Postman request.
  * It contains the following properties:
  */
-async function parseTypesFromPostManExampleResponse(resp) {
+async function parseTypesFromPostManExampleResponse(resp, prefix) {
   const name = `${resp.name} ResponseBody`;
   const rawJson = resp.body;
 
@@ -355,9 +361,13 @@ async function parseTypesFromPostManExampleResponse(resp) {
     rawJson.length > 0 &&
     TYPES_FOR_STATUS_CODE.includes(200)
   ) {
-    const content = getTypeScriptTypeFromRawJson(name, rawJson);
+    const content = getTypeScriptTypeFromRawJson(name, rawJson, prefix);
     const fileContent = `/*\n${name}\n*/\n` + content;
-    const path = join(`${OUTPUT_DIR}`, "response", `${toCamelCase(name)}.ts`);
+    const path = join(
+      `${OUTPUT_DIR}`,
+      "response",
+      `${prefix}${toCamelCase(name)}.ts`,
+    );
     return writeFile(path, fileContent);
   }
 }
@@ -369,19 +379,24 @@ async function parseTypesFromPostManExampleResponse(resp) {
  * variable for which we want to determine the TypeScript equivalent type.
  * @returns a TypeScript equivalent type for the given variable.
  */
-function getTypescriptEquivalentForVariable(value, depth = 1) {
+function getTypescriptEquivalentForVariable(value, prefix, depth = 1) {
   const type = typeof value;
 
   if (value === null) return "null";
 
   if (type === "object") {
     if (Array.isArray(value)) {
-      const type = getTypescriptEquivalentForVariable(value[0], depth + 1);
+      const type = getTypescriptEquivalentForVariable(
+        value[0],
+        prefix,
+        depth + 1,
+      );
       return type ? `${type}[]` : INCLUDE_ANY ? "any[]" : "unknown[]";
     }
     let nestedType = getTypeScriptTypeFromRawJson(
       null,
       JSON.stringify(value),
+      prefix,
       depth + 1,
     );
     return nestedType;
@@ -403,10 +418,10 @@ function getTypescriptEquivalentForVariable(value, depth = 1) {
  * the raw JSON data that you want to convert into a TypeScript type.
  * @returns a TypeScript interface or object literal as a string.
  */
-function getTypeScriptTypeFromRawJson(name, rawJson, depth = 1) {
+function getTypeScriptTypeFromRawJson(name, rawJson, prefix, depth = 1) {
   let response =
     (name && name.length) > 0
-      ? `export interface ${toCamelCase(name)} { \n`
+      ? `export interface ${prefix}${toCamelCase(name)} { \n`
       : "{ \n";
   try {
     let jsonData = JSON.parse(rawJson);
@@ -417,6 +432,7 @@ function getTypeScriptTypeFromRawJson(name, rawJson, depth = 1) {
       for (let i = 0; i < depth; i++) response += "  ";
       response += `${key}: ${getTypescriptEquivalentForVariable(
         jsonData[key],
+        prefix,
         depth + 1,
       )}; \n`;
     }
@@ -434,19 +450,19 @@ function getTypeScriptTypeFromRawJson(name, rawJson, depth = 1) {
  * @param jsonData - The `jsonData` parameter is an object that contains information about a request
  * and its corresponding response. It is expected to have the following properties:
  */
-async function getData(jsonData) {
+async function getData(jsonData, prefix) {
   if (jsonData.item) {
     for (const item of jsonData.item) {
-      await getData(item);
+      await getData(item, prefix);
     }
   } else {
     const req = jsonData.request;
     const exampleResponses = jsonData.response;
-    await parseTypeFromPostManRequestJsonBody(jsonData.name, req);
-    await parseTypeFromPostManRequestQuery(jsonData.name, req);
+    await parseTypeFromPostManRequestJsonBody(jsonData.name, req, prefix);
+    await parseTypeFromPostManRequestQuery(jsonData.name, req, prefix);
     await Promise.all(
       exampleResponses.map(async (resp) =>
-        parseTypesFromPostManExampleResponse(resp),
+        parseTypesFromPostManExampleResponse(resp, prefix),
       ),
     );
     return true;
@@ -490,6 +506,7 @@ async function main() {
   INCLUDE_ANY = Boolean(args["-ia"]);
   OUTPUT_DIR = args["-o"];
   PARSE_TYPES = ["json"];
+  PREFIX = args["-p"];
 
   if (args["-ft"]) PARSE_TYPES.push("text");
 
@@ -532,11 +549,11 @@ async function main() {
       .join("");
     const apiKey = args["-X"];
     const jsonData = await getPostmanCollectionJSON(collectionID, apiKey);
-    await getData(jsonData);
+    await getData(jsonData, PREFIX);
   } else {
     const data = readFileSync(file);
     const jsonData = JSON.parse(data);
-    await getData(jsonData);
+    await getData(jsonData, PREFIX);
   }
 }
 
