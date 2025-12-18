@@ -64,24 +64,30 @@ ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[0],
   `The export of postman data as json v2.0`,
 );
+
 ARGS_HELP_MAP.set(ALL_DEFINED_ARGS[1], `The output directory for all types`);
+
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[2],
   `This specifies if any must be included in typescript types or not. Default value is false`,
 );
+
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[3],
   `This specifies if we can add type support for response of the types provided. Default value is 200[comma separated]`,
 );
+
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[4],
   `This specifies if we need to parse text content in postman request or not. Default value is false`,
 );
+
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[5],
   `This specifies if the program should throw error`,
 );
 ARGS_HELP_MAP.set(ALL_DEFINED_ARGS[6], `This specifies the postman API key`);
+
 ARGS_HELP_MAP.set(
   ALL_DEFINED_ARGS[7],
   `This specifies the remote postman collection id`,
@@ -93,7 +99,7 @@ let requiredArgs = ALL_DEFINED_ARGS.filter((arg) => arg.required);
 
 /* The above code is declaring and initializing several variables. */
 let file = "";
-let throwError = false;
+let THROW_ERROR = false;
 let INCLUDE_ANY = true;
 let TYPES_FOR_STATUS_CODE = [200];
 let OUTPUT_DIR = "";
@@ -155,6 +161,7 @@ async function parseArgs() {
 
     const argKey = keyObject.keys[0];
     const argValue = process.argv[i];
+
     args[argKey] = argValue;
 
     // basically we are searching by both keys
@@ -304,17 +311,21 @@ async function parseTypeFromPostManRequestQuery(name, request, prefix) {
         }),
         {},
       );
+
       const content = getTypeScriptTypeFromRawJson(
         name,
         JSON.stringify(json),
         prefix,
       );
+
       const path = join(
         `${OUTPUT_DIR}`,
         "queries",
         `${prefix}${toCamelCase(name)}Query.ts`,
       );
+
       const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
+
       writeFile(path, fileContent, { flag: "w+" }, (err) => {
         if (err) throw err;
       });
@@ -336,11 +347,13 @@ async function parseTypeFromPostManRequestJsonBody(name, req, prefix) {
     const url = req?.url?.raw ?? req.url;
 
     const content = getTypeScriptTypeFromRawJson(name, raw, prefix);
+
     const path = join(
       `${OUTPUT_DIR}`,
       "request",
       `${prefix}${toCamelCase(name)}Request.ts`,
     );
+
     const fileContent = `/*\n${name}\n${method}: ${url}\n*/\n` + content;
     return writeFile(path, fileContent);
   }
@@ -362,12 +375,17 @@ async function parseTypesFromPostManExampleResponse(resp, prefix) {
     TYPES_FOR_STATUS_CODE.includes(200)
   ) {
     const content = getTypeScriptTypeFromRawJson(name, rawJson, prefix);
-    const fileContent = `/*\n${name}\n*/\n` + content;
+
+    const fileComment = `/*\n${name}\n*/`;
+
+    const fileContent = fileComment + "\n" + content;
+
     const path = join(
       `${OUTPUT_DIR}`,
       "response",
       `${prefix}${toCamelCase(name)}.ts`,
     );
+
     return writeFile(path, fileContent);
   }
 }
@@ -379,7 +397,7 @@ async function parseTypesFromPostManExampleResponse(resp, prefix) {
  * variable for which we want to determine the TypeScript equivalent type.
  * @returns a TypeScript equivalent type for the given variable.
  */
-function getTypescriptEquivalentForVariable(value, prefix, depth = 1) {
+function getTypescriptEquivalentTypeForVariable(value, prefix, depth = 1) {
   const type = typeof value;
 
   if (value === null) return "null";
@@ -393,12 +411,14 @@ function getTypescriptEquivalentForVariable(value, prefix, depth = 1) {
       );
       return type ? `${type}[]` : INCLUDE_ANY ? "any[]" : "unknown[]";
     }
+
     let nestedType = getTypeScriptTypeFromRawJson(
       null,
       JSON.stringify(value),
       prefix,
       depth + 1,
     );
+
     return nestedType;
   }
 
@@ -423,6 +443,7 @@ function getTypeScriptTypeFromRawJson(name, rawJson, prefix, depth = 1) {
     (name && name.length) > 0
       ? `export interface ${prefix}${toCamelCase(name)} { \n`
       : "{ \n";
+
   try {
     let jsonData = JSON.parse(rawJson);
 
@@ -430,17 +451,22 @@ function getTypeScriptTypeFromRawJson(name, rawJson, prefix, depth = 1) {
 
     for (const key in jsonData) {
       for (let i = 0; i < depth; i++) response += "  ";
-      response += `${key}: ${getTypescriptEquivalentForVariable(
+
+      const typeScriptType = getTypescriptEquivalentTypeForVariable(
         jsonData[key],
         prefix,
         depth + 1,
-      )}; \n`;
+      );
+
+      response += `${key}: ${typeScriptEquivalent};\n`;
     }
     for (let i = 0; i < depth - 1; i++) response += "  ";
+
     response += "}";
+
     return response;
   } catch (e) {
-    if (throwError) throw e;
+    if (THROW_ERROR) throw e;
   }
 }
 
@@ -451,22 +477,28 @@ function getTypeScriptTypeFromRawJson(name, rawJson, prefix, depth = 1) {
  * and its corresponding response. It is expected to have the following properties:
  */
 async function getData(jsonData, prefix) {
+  // Postman v2 json has item property in it
+  // Creates a recursive structure
   if (jsonData.item) {
-    for (const item of jsonData.item) {
-      await getData(item, prefix);
-    }
-  } else {
-    const req = jsonData.request;
-    const exampleResponses = jsonData.response;
-    await parseTypeFromPostManRequestJsonBody(jsonData.name, req, prefix);
-    await parseTypeFromPostManRequestQuery(jsonData.name, req, prefix);
-    await Promise.all(
-      exampleResponses.map(async (resp) =>
-        parseTypesFromPostManExampleResponse(resp, prefix),
-      ),
-    );
+    for (const item of jsonData.item) await getData(item, prefix);
     return true;
   }
+
+  const req = jsonData.request;
+
+  const exampleResponses = jsonData.response;
+
+  await parseTypeFromPostManRequestJsonBody(jsonData.name, req, prefix);
+
+  await parseTypeFromPostManRequestQuery(jsonData.name, req, prefix);
+
+  await Promise.all(
+    exampleResponses.map(async (resp) =>
+      parseTypesFromPostManExampleResponse(resp, prefix),
+    ),
+  );
+
+  return true;
 }
 
 /**
@@ -486,9 +518,10 @@ async function getPostmanCollectionJSON(collectionID, apiKey) {
       },
     );
     const data = await response.json();
-    if (data.error) {
+
+    if (data.error)
       throw new Error(`${data.error.name}: ${data.error.message}`);
-    }
+
     return data.collection;
   } catch (err) {
     throw new Error(err.message);
@@ -502,10 +535,15 @@ async function getPostmanCollectionJSON(collectionID, apiKey) {
 async function main() {
   const args = await parseArgs();
   if (args["-i"]) file = args["-i"];
-  throwError = Boolean(args["-te"]);
+
+  THROW_ERROR = Boolean(args["-te"]);
+
   INCLUDE_ANY = Boolean(args["-ia"]);
+
   OUTPUT_DIR = args["-o"];
+
   PARSE_TYPES = ["json"];
+
   PREFIX = args["-p"];
 
   if (args["-ft"]) PARSE_TYPES.push("text");
@@ -522,22 +560,19 @@ async function main() {
     process.exit(1);
   }
 
-  if (!outputFolderExists) {
-    mkdirSync(OUTPUT_DIR);
-  }
+  if (!outputFolderExists) mkdirSync(OUTPUT_DIR);
 
-  if (!existsSync(join(OUTPUT_DIR, "queries"))) {
+  if (!existsSync(join(OUTPUT_DIR, "queries")))
     mkdirSync(join(OUTPUT_DIR, "queries"));
-  }
 
-  if (!existsSync(join(OUTPUT_DIR, "request"))) {
+  if (!existsSync(join(OUTPUT_DIR, "request")))
     mkdirSync(join(OUTPUT_DIR, "request"));
-  }
 
-  if (!existsSync(join(OUTPUT_DIR, "response"))) {
+  if (!existsSync(join(OUTPUT_DIR, "response")))
     mkdirSync(join(OUTPUT_DIR, "response"));
-  }
 
+  // if U arg, is provided, need to parse collection from postman url
+  // would require apiKey as well
   if (args["-U"]) {
     const collectionID = args["-U"]
       .split("")
@@ -547,12 +582,17 @@ async function main() {
       .split("")
       .reverse()
       .join("");
+
     const apiKey = args["-X"];
+
     const jsonData = await getPostmanCollectionJSON(collectionID, apiKey);
+
     await getData(jsonData, PREFIX);
   } else {
     const data = readFileSync(file);
+
     const jsonData = JSON.parse(data);
+
     await getData(jsonData, PREFIX);
   }
 }

@@ -36,7 +36,9 @@ node index.js
 ## Use npx
 
 ```bash
-npx @n1rjal/pm_ts -i cit-input.json -o types # using input file
+npx @n1rjal/pm_ts -i postman_collection_v2.json -o types # using input file
+```
+```bash
 npx @n1rjal/pm_ts -X YOUR_API_KEY -U REMOTE_POSTMAN_COLLECTION_URL -o types # using remote postman collection
 ```
 
@@ -65,10 +67,9 @@ On local run, before your folder structure, should look like this
 
 ```bash
 .
-├── eater.json
 ├── index.js
 ├── readme.md
-├── sample.json
+├── postman_collection_v2.json
 └── types
 
 
