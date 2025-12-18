@@ -1,19 +1,23 @@
 #! /usr/bin/env node
 
-/* The code is defining two constants: one for all typescript illegal characters and other for numeric types in js*/
-const TS_ILLEGAL_CHARACTERS = /[^\w\s\n]/g;
-const NUMERIC_TYPES = ["number", "bigint"];
 const {
   readFileSync,
   writeFile: writeFileFs,
   existsSync,
   mkdirSync,
 } = require("fs");
+
 const { join } = require("path");
+
 const rl = require("readline").createInterface({
   input: process.stdin,
   output: process.stdout,
 });
+
+/* The code is defining two constants: one for all typescript illegal characters and other for numeric types in js*/
+const TS_ILLEGAL_CHARACTERS = /[^\w\s\n]/g;
+
+const NUMERIC_TYPES = ["number", "bigint"];
 
 /* The above code is defining an array called `ALL_DEFINED_ARGS` which contains objects representing
 command line arguments. Each object has properties such as `keys` (an array of possible argument
@@ -58,6 +62,7 @@ different command line arguments. Each argument is associated with a help messag
 purpose. The map is populated with key-value pairs where the key is the command line argument and
 the value is the corresponding help message. */
 const ARGS_HELP_MAP = new Map();
+
 // from the key array we will be using the first one
 // and ignoring the last one
 ARGS_HELP_MAP.set(
@@ -404,7 +409,7 @@ function getTypescriptEquivalentTypeForVariable(value, prefix, depth = 1) {
 
   if (type === "object") {
     if (Array.isArray(value)) {
-      const type = getTypescriptEquivalentForVariable(
+      const type = getTypescriptEquivalentTypeForVariable(
         value[0],
         prefix,
         depth + 1,
@@ -450,7 +455,8 @@ function getTypeScriptTypeFromRawJson(name, rawJson, prefix, depth = 1) {
     if (Array.isArray(jsonData) && jsonData.length > 0) jsonData = jsonData[0];
 
     for (const key in jsonData) {
-      for (let i = 0; i < depth; i++) response += "  ";
+      // simulate nested depth level
+      response += "  ".repeat(depth);
 
       const typeScriptType = getTypescriptEquivalentTypeForVariable(
         jsonData[key],
@@ -458,7 +464,7 @@ function getTypeScriptTypeFromRawJson(name, rawJson, prefix, depth = 1) {
         depth + 1,
       );
 
-      response += `${key}: ${typeScriptEquivalent};\n`;
+      response += `${key}: ${typeScriptType};\n`;
     }
     for (let i = 0; i < depth - 1; i++) response += "  ";
 
@@ -534,6 +540,7 @@ async function getPostmanCollectionJSON(collectionID, apiKey) {
  */
 async function main() {
   const args = await parseArgs();
+
   if (args["-i"]) file = args["-i"];
 
   THROW_ERROR = Boolean(args["-te"]);
@@ -603,11 +610,6 @@ async function main() {
 printHelp();
 
 // run the main function
-main()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((e) => {
-    console.log(e?.message ?? e);
-    process.exit(1);
-  });
+main().then(() => {
+  process.exit(0);
+});
